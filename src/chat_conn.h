@@ -18,7 +18,7 @@ struct chat_user_msg
     time_t ts;
 };
 
-enum chat_conn_ret {
+enum chat_conn_retval {
     CHAT_CONN_OK = 0,
     CHAT_CONN_AUTH_ERROR = 1,
     CHAT_CONN_CONNECTION_ERROR = 2,

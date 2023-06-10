@@ -36,7 +36,7 @@ extract_token_till_target(char *buf, size_t *cursor, char target, char *token, s
     if(!advance_cursor_till_target(buf, cursor, target))
     {
         return false;
-    };
+    }
 
     token_len = (*cursor) - token_start;
 
@@ -50,7 +50,7 @@ extract_token_till_target(char *buf, size_t *cursor, char target, char *token, s
         if(advance_cursor_till_target(buf, cursor, '\n'))
         {
             cursor++;
-        };
+        }
         return false;
     }
 
@@ -71,15 +71,11 @@ extract_token_till_target(char *buf, size_t *cursor, char target, char *token, s
 enum irc_msg_type
 parse_or_handle_irc_buffer(struct chat_user_msg *msg, char *buf, size_t *cursor)
 {
-    assert(msg != NULL);
-    assert(buf != NULL);
-    assert(cursor != NULL);
-
     // Skip over tags for now
     if(!advance_cursor_till_target(buf, cursor, ':'))
     {
         return IRC_MSG_UNKNOWN;
-    };
+    }
 
     /* Attempt to find a ! marker or a space.
      * Allows us to determine whether this is a PRIVMSG from a user
@@ -109,7 +105,7 @@ parse_or_handle_irc_buffer(struct chat_user_msg *msg, char *buf, size_t *cursor)
         if(advance_cursor_till_target(buf, cursor, '\n'))
         {
             cursor++;
-        };
+        }
         return IRC_MSG_UNKNOWN;
     }
 
@@ -144,7 +140,7 @@ parse_or_handle_irc_buffer(struct chat_user_msg *msg, char *buf, size_t *cursor)
         if(advance_cursor_till_target(buf, cursor, '\n'))
         {
             cursor++;
-        };
+        }
         return IRC_MSG_UNKNOWN;
     }
 
@@ -166,7 +162,16 @@ parse_or_handle_irc_buffer(struct chat_user_msg *msg, char *buf, size_t *cursor)
     }
     (*cursor)++;
 
-    if (!extract_token_till_target(buf, cursor, '\n', msg->text, MAX_MESSAGE_TEXT_LEN))
+    if (!extract_token_till_target(buf, cursor, '\r', msg->text, MAX_MESSAGE_TEXT_LEN))
+    {
+        fprintf(stderr, "Error parsing message text from irc PRIVMSG in buffer: %s\n", buf);
+        return IRC_MSG_UNKNOWN;
+    }
+
+    /* Skip \r\n at end of message and leave the cursor at the start of next message
+     * or a null termination character. */
+    (*cursor)++;
+    if (buf[*cursor] != '\n')
     {
         fprintf(stderr, "Error parsing message text from irc PRIVMSG in buffer: %s\n", buf);
         return IRC_MSG_UNKNOWN;

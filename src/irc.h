@@ -3,7 +3,7 @@
 // https://datatracker.ietf.org/doc/html/rfc1459.html
 enum irc_msg_type
 {
-    IRC_MSG_UNKNOWN = 0,
+    IRC_MSG_UNKNOWN,
 
     IRC_MSG_JOIN,
     IRC_MSG_NICK,

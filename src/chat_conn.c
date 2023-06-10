@@ -98,6 +98,12 @@ chat_conn_init(char *channel)
         return CHAT_CONN_CONNECTION_ERROR;
     }
 
+    snprintf(cmd, sizeof(cmd), "JOIN #%s\r\n", "forsen,#gaules,#quin69,#vedal987");
+    if (send(m_socket, cmd, strlen(cmd), 0) < 0) {
+        fprintf(stderr, "Failed to send JOIN command\n");
+        return CHAT_CONN_CONNECTION_ERROR;
+    }
+
     return 0;
 }
 
@@ -151,8 +157,12 @@ chat_conn_get_next_buffer(char *buf, size_t *data_len_out)
                 break;
             }
         }
-        /* No messages found in received bytes from twitch */
-        return CHAT_CONN_CONNECTION_ERROR;
+
+        if (i == -1)
+        {
+            /* No messages found in received bytes from twitch */
+            return CHAT_CONN_CONNECTION_ERROR;
+        }
     }
     else
     {
