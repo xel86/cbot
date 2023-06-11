@@ -45,6 +45,7 @@ authenticate_irc_bot_user()
 int
 chat_conn_init(char *channel)
 {
+    char cmd[128];
     struct sockaddr_in server;
 
     // Resolve server IP address
@@ -91,14 +92,7 @@ chat_conn_init(char *channel)
         return CHAT_CONN_CONNECTION_ERROR;
     }
 
-    char cmd[128];
     snprintf(cmd, sizeof(cmd), "JOIN #%s\r\n", channel);
-    if (send(m_socket, cmd, strlen(cmd), 0) < 0) {
-        fprintf(stderr, "Failed to send JOIN command\n");
-        return CHAT_CONN_CONNECTION_ERROR;
-    }
-
-    snprintf(cmd, sizeof(cmd), "JOIN #%s\r\n", "forsen,#gaules,#quin69,#vedal987");
     if (send(m_socket, cmd, strlen(cmd), 0) < 0) {
         fprintf(stderr, "Failed to send JOIN command\n");
         return CHAT_CONN_CONNECTION_ERROR;
