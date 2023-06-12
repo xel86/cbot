@@ -44,6 +44,12 @@ int
 chat_conn_get_next_buffer(char *buf, size_t *bytes_out);
 
 /*
+ * Sends a pong message back to the twitch irc server for keepalive messages
+ */
+int
+chat_conn_send_pong();
+
+/*
  * Closes socket connection with twitch irc server and
  * performs all necessary cleanup
  */

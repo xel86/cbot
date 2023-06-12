@@ -1,4 +1,5 @@
 #include "irc.h"
+#include "irc_msg_type_table.h"
 #include "chat_conn.h"
 
 #include <stddef.h>
@@ -6,6 +7,8 @@
 #include <string.h>
 #include <assert.h>
 #include <stdbool.h>
+
+#define IRC_MSG_TYPE_STR_LEN 32
 
 /* 
  * Returns true if character is in buf, or false if we reached the end of the buf
@@ -27,7 +30,7 @@ advance_cursor_till_target(char *buf, size_t *cursor, char target)
     return false;
 }
 
-static bool
+static size_t
 extract_token_till_target(char *buf, size_t *cursor, char target, char *token, size_t max_len)
 {
     size_t token_start = *cursor;
@@ -35,7 +38,7 @@ extract_token_till_target(char *buf, size_t *cursor, char target, char *token, s
 
     if(!advance_cursor_till_target(buf, cursor, target))
     {
-        return false;
+        return 0;
     }
 
     token_len = (*cursor) - token_start;
@@ -49,15 +52,30 @@ extract_token_till_target(char *buf, size_t *cursor, char target, char *token, s
     {
         if(advance_cursor_till_target(buf, cursor, '\n'))
         {
-            cursor++;
+            (*cursor)++;
         }
-        return false;
+        return 0;
     }
 
     strncpy(token, &buf[token_start], token_len);
     token[token_len] = '\0';
 
-    return true;
+    return token_len;
+}
+
+enum irc_msg_type
+parse_irc_msg_type(char *type, size_t str_len)
+{
+    /* Use a perfect hash table generated from gperf to translate type str to enum.
+     * Example: "PRIVMSG" -> IRC_MSG_PRIVMSG
+     */
+    const struct irc_msg_keyword *result = in_word_set(type, str_len);
+    if (result == NULL)
+    {
+        return IRC_MSG_UNKNOWN;
+    }
+
+    return result->value;
 }
 
 /*
@@ -71,10 +89,55 @@ extract_token_till_target(char *buf, size_t *cursor, char target, char *token, s
 enum irc_msg_type
 parse_or_handle_irc_buffer(struct chat_user_msg *msg, char *buf, size_t *cursor)
 {
-    // Skip over tags for now
-    if(!advance_cursor_till_target(buf, cursor, ':'))
+    char type_str[IRC_MSG_TYPE_STR_LEN];
+    enum irc_msg_type type;
+    size_t token_len;
+
+    if (buf[*cursor] == '@')
     {
-        return IRC_MSG_UNKNOWN;
+        // Skip over tags for now
+        if(!advance_cursor_till_target(buf, cursor, ' '))
+        {
+            fprintf(stderr, "Failed to skip tags from IRC message in buffer: %s\n", buf);
+            return IRC_MSG_UNKNOWN;
+        }
+
+        (*cursor)++;
+        if (!buf[*cursor])
+        {
+            return IRC_MSG_UNKNOWN;
+        }
+    }
+
+    if (buf[*cursor] != ':')
+    {
+        /* Unfortunately PING messages from twitch throw out the standard message format.
+         * So we specifically check for those here
+         * Ex: "PING :tmi.twitch.tv"
+         * */
+        if(!extract_token_till_target(buf, cursor, ' ', type_str, IRC_MSG_TYPE_STR_LEN))
+        {
+            fprintf(stderr, "Failed to parse IRC message without starting ':' in buffer: %s\n", buf);
+            type = IRC_MSG_UNKNOWN;
+        }
+        else
+        {
+            if (strcmp(type_str, "PING") == 0)
+            {
+                type = IRC_MSG_PING;
+            }
+            else
+            {
+                fprintf(stderr, "Non-PING IRC message without starting ':' in buffer: %s\n", buf);
+                type = IRC_MSG_UNKNOWN;
+            }
+        }
+
+        if(advance_cursor_till_target(buf, cursor, '\n'))
+        {
+            (*cursor)++;
+        }
+        return type;
     }
 
     /* Attempt to find a ! marker or a space.
@@ -99,49 +162,43 @@ parse_or_handle_irc_buffer(struct chat_user_msg *msg, char *buf, size_t *cursor)
         return IRC_MSG_UNKNOWN;
     }
 
-    if (buf[*cursor] == ' ')
+    if (buf[*cursor] == '!')
     {
-        // Not a PRIVMSG, handle and return without setting msg
-        if(advance_cursor_till_target(buf, cursor, '\n'))
+        /* Advance past username marker '!' */
+        (*cursor)++;
+
+        if (!extract_token_till_target(buf, cursor, '@', msg->username, MAX_USERNAME_LEN))
         {
-            cursor++;
+            fprintf(stderr, "Error parsing username from irc PRIVMSG in buffer: %s\n", buf);
+            return IRC_MSG_UNKNOWN;
         }
-        return IRC_MSG_UNKNOWN;
+
+        if(!advance_cursor_till_target(buf, cursor, ' '))
+        {
+            return IRC_MSG_UNKNOWN;
+        }
     }
 
-    /* IRC Message is a PRIVMSG */
-
-    /* Advance past username marker '!' */
+    /* Skip past space before message type */
     (*cursor)++;
 
-    if (!extract_token_till_target(buf, cursor, '@', msg->username, MAX_USERNAME_LEN))
+    if (!(token_len = extract_token_till_target(buf, cursor, ' ', type_str, IRC_MSG_TYPE_STR_LEN)))
     {
-        fprintf(stderr, "Error parsing username from irc PRIVMSG in buffer: %s\n", buf);
+        fprintf(stderr, "Error parsing message type from irc msg in buffer: %s\n", buf);
         return IRC_MSG_UNKNOWN;
     }
 
-    if(!advance_cursor_till_target(buf, cursor, ' '))
-    {
-        return IRC_MSG_UNKNOWN;
-    }
-    (*cursor)++;
+    type = parse_irc_msg_type(type_str, token_len);
 
-    char type[32];
-    if (!extract_token_till_target(buf, cursor, ' ', type, 32))
+    /* If irc msg is a PRIVMSG continue filling in chat_user_msg
+     * else return the type so outside functions can handle them. */
+    if (type != IRC_MSG_PRIVMSG)
     {
-        fprintf(stderr, "Error parsing command type from irc PRIVMSG in buffer: %s\n", buf);
-        return IRC_MSG_UNKNOWN;
-    }
-
-    if (strcmp(type, "PRIVMSG") != 0)
-    {
-        // Non-PRIVMSG with a username !...@ in prefix
-        // Most likely JOIN msg(s)
         if(advance_cursor_till_target(buf, cursor, '\n'))
         {
-            cursor++;
+            (*cursor)++;
         }
-        return IRC_MSG_UNKNOWN;
+        return type;
     }
 
     if(!advance_cursor_till_target(buf, cursor, '#'))

@@ -38,6 +38,14 @@ main(int argc, char **argv)
             {
                 printf("(#%s) %s: %s\n", msg.channel, msg.username, msg.text);
             }
+            else if (type == IRC_MSG_PING)
+            {
+                ret = chat_conn_send_pong();
+                if (ret != CHAT_CONN_OK)
+                {
+                    fprintf(stderr, "Failed to send PONG message back after PING\n");
+                }
+            }
         }
     }
     return 0;

@@ -11,6 +11,7 @@
 #define SERVER "irc.chat.twitch.tv"
 #define PORT 6667
 
+static int m_initialized;
 static int m_socket;
 static char leftover_buffer[CHAT_CONN_BUFFER_SIZE];
 static size_t leftover_size = 0;
@@ -20,7 +21,9 @@ authenticate_irc_bot_user()
 {
     char cmd[128];
     char *username = "oectbot";
-    char *pass = getenv("CBOT_USER_OAUTH");
+    char *pass;
+
+    pass = getenv("CBOT_USER_OAUTH");
     if (pass == NULL)
     {
         fprintf(stderr, "Failed to get env var $CBOT_USER_OAUTH to authenticate\n");
@@ -98,7 +101,8 @@ chat_conn_init(char *channel)
         return CHAT_CONN_CONNECTION_ERROR;
     }
 
-    return 0;
+    m_initialized = 1;
+    return CHAT_CONN_OK;
 }
 
 int
@@ -171,8 +175,19 @@ chat_conn_get_next_buffer(char *buf, size_t *data_len_out)
 }
 
 int
+chat_conn_send_pong()
+{
+    char *pong = "PONG :tmi.twitch.tv\r\n";
+    if (send(m_socket, pong, strlen(pong), 0) < 0) {
+        return CHAT_CONN_CONNECTION_ERROR;
+    }
+
+    return CHAT_CONN_OK;
+}
+
+int
 chat_conn_fini()
 {
     close(m_socket);
-    return 0;
+    return CHAT_CONN_OK;
 }
