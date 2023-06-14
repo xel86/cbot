@@ -16,6 +16,7 @@ struct irc_msg_prefix
 };
 
 // https://datatracker.ietf.org/doc/html/rfc1459.html
+// https://dev.twitch.tv/docs/irc/commands/
 enum irc_msg_command
 {
     IRC_MSG_UNKNOWN,
@@ -38,6 +39,17 @@ enum irc_msg_command
     RPL_MOTDSTART = 375,
     RPL_MOTD = 372,
     RPL_ENDOFMOTD = 376,
+
+    /* Twitch Specific Commands */
+    IRC_MSG_CLEARCHAT,
+    IRC_MSG_CLEARMSG,
+    IRC_MSG_GLOBALUSERSTATE,
+    IRC_MSG_HOSTTARGET,
+    IRC_MSG_RECONNECT,
+    IRC_MSG_ROOMSTATE,
+    IRC_MSG_USERNOTICE,
+    IRC_MSG_USERSTATE,
+    IRC_MSG_WHISPER,
 };
 
 struct irc_msg
