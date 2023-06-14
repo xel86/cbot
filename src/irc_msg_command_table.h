@@ -1,5 +1,5 @@
 /* ANSI-C code produced by gperf version 3.1 */
-/* Command-line: gperf -t --output-file=irc_msg_type_table.h irc_msgs.gperf  */
+/* Command-line: gperf -t --output-file=irc_msg_command_table.h irc_msgs.gperf  */
 /* Computed positions: -k'2-3' */
 
 #if !((' ' == 32) && ('!' == 33) && ('"' == 34) && ('#' == 35) \
@@ -35,15 +35,15 @@
 #line 4 "irc_msgs.gperf"
 struct irc_msg_keyword {
     const char *name;
-    enum irc_msg_type value;
+    enum irc_msg_command value;
 };
 
-#define TOTAL_KEYWORDS 13
+#define TOTAL_KEYWORDS 17
 #define MIN_WORD_LENGTH 3
 #define MAX_WORD_LENGTH 7
 #define MIN_HASH_VALUE 3
-#define MAX_HASH_VALUE 28
-/* maximum key range = 26, duplicates = 0 */
+#define MAX_HASH_VALUE 43
+/* maximum key range = 41, duplicates = 0 */
 
 #ifdef __GNUC__
 __inline
@@ -57,32 +57,32 @@ hash (register const char *str, register size_t len)
 {
   static unsigned char asso_values[] =
     {
-      29, 29, 29, 29, 29, 29, 29, 29, 29, 29,
-      29, 29, 29, 29, 29, 29, 29, 29, 29, 29,
-      29, 29, 29, 29, 29, 29, 29, 29, 29, 29,
-      29, 29, 29, 29, 29, 29, 29, 29, 29, 29,
-      29, 29, 29, 29, 29, 29, 29, 29, 29, 29,
-      15, 15, 29,  5,  0, 10, 29, 29, 29, 29,
-      29, 29, 29, 29, 29,  0, 29, 15, 29, 29,
-      29, 29, 29,  5, 29, 29, 29, 29,  0, 10,
-      29, 29,  0,  4,  0, 29, 29, 29, 29, 29,
-      29, 29, 29, 29, 29, 29, 29, 29, 29, 29,
-      29, 29, 29, 29, 29, 29, 29, 29, 29, 29,
-      29, 29, 29, 29, 29, 29, 29, 29, 29, 29,
-      29, 29, 29, 29, 29, 29, 29, 29, 29, 29,
-      29, 29, 29, 29, 29, 29, 29, 29, 29, 29,
-      29, 29, 29, 29, 29, 29, 29, 29, 29, 29,
-      29, 29, 29, 29, 29, 29, 29, 29, 29, 29,
-      29, 29, 29, 29, 29, 29, 29, 29, 29, 29,
-      29, 29, 29, 29, 29, 29, 29, 29, 29, 29,
-      29, 29, 29, 29, 29, 29, 29, 29, 29, 29,
-      29, 29, 29, 29, 29, 29, 29, 29, 29, 29,
-      29, 29, 29, 29, 29, 29, 29, 29, 29, 29,
-      29, 29, 29, 29, 29, 29, 29, 29, 29, 29,
-      29, 29, 29, 29, 29, 29, 29, 29, 29, 29,
-      29, 29, 29, 29, 29, 29, 29, 29, 29, 29,
-      29, 29, 29, 29, 29, 29, 29, 29, 29, 29,
-      29, 29, 29, 29, 29, 29
+      44, 44, 44, 44, 44, 44, 44, 44, 44, 44,
+      44, 44, 44, 44, 44, 44, 44, 44, 44, 44,
+      44, 44, 44, 44, 44, 44, 44, 44, 44, 44,
+      44, 44, 44, 44, 44, 44, 44, 44, 44, 44,
+      44, 44, 44, 44, 44, 44, 44, 44, 15, 25,
+      15, 10, 20,  5,  0,  5, 44, 44, 44, 44,
+      44, 44, 44, 44, 44,  0, 44, 15, 44, 44,
+      44, 44, 44, 10, 44, 44, 44, 44,  5,  0,
+      44, 44,  0, 20,  0, 44, 44, 44, 44, 44,
+      44, 44, 44, 44, 44, 44, 44, 44, 44, 44,
+      44, 44, 44, 44, 44, 44, 44, 44, 44, 44,
+      44, 44, 44, 44, 44, 44, 44, 44, 44, 44,
+      44, 44, 44, 44, 44, 44, 44, 44, 44, 44,
+      44, 44, 44, 44, 44, 44, 44, 44, 44, 44,
+      44, 44, 44, 44, 44, 44, 44, 44, 44, 44,
+      44, 44, 44, 44, 44, 44, 44, 44, 44, 44,
+      44, 44, 44, 44, 44, 44, 44, 44, 44, 44,
+      44, 44, 44, 44, 44, 44, 44, 44, 44, 44,
+      44, 44, 44, 44, 44, 44, 44, 44, 44, 44,
+      44, 44, 44, 44, 44, 44, 44, 44, 44, 44,
+      44, 44, 44, 44, 44, 44, 44, 44, 44, 44,
+      44, 44, 44, 44, 44, 44, 44, 44, 44, 44,
+      44, 44, 44, 44, 44, 44, 44, 44, 44, 44,
+      44, 44, 44, 44, 44, 44, 44, 44, 44, 44,
+      44, 44, 44, 44, 44, 44, 44, 44, 44, 44,
+      44, 44, 44, 44, 44, 44
     };
   return len + asso_values[(unsigned char)str[2]] + asso_values[(unsigned char)str[1]];
 }
@@ -93,38 +93,49 @@ in_word_set (register const char *str, register size_t len)
   static struct irc_msg_keyword wordlist[] =
     {
       {""}, {""}, {""},
-#line 19 "irc_msgs.gperf"
+#line 23 "irc_msgs.gperf"
       {"366", RPL_ENDOFNAMES },
 #line 13 "irc_msgs.gperf"
       {"PART", IRC_MSG_PART},
-      {""}, {""}, {""},
-#line 14 "irc_msgs.gperf"
-      {"PASS", IRC_MSG_PASS},
-#line 15 "irc_msgs.gperf"
-      {"PING", IRC_MSG_PING},
-      {""}, {""},
-#line 17 "irc_msgs.gperf"
-      {"PRIVMSG", IRC_MSG_PRIVMSG},
-#line 22 "irc_msgs.gperf"
-      {"376", RPL_ENDOFMOTD},
-#line 16 "irc_msgs.gperf"
-      {"PONG", IRC_MSG_PONG},
       {""},
 #line 12 "irc_msgs.gperf"
       {"NOTICE", IRC_MSG_NOTICE},
       {""},
-#line 20 "irc_msgs.gperf"
+#line 26 "irc_msgs.gperf"
+      {"376", RPL_ENDOFMOTD},
+#line 16 "irc_msgs.gperf"
+      {"PONG", IRC_MSG_PONG},
+      {""}, {""}, {""},
+#line 24 "irc_msgs.gperf"
       {"375", RPL_MOTDSTART},
 #line 10 "irc_msgs.gperf"
       {"JOIN", IRC_MSG_JOIN},
-      {""}, {""}, {""},
-#line 18 "irc_msgs.gperf"
+      {""}, {""},
+#line 17 "irc_msgs.gperf"
+      {"PRIVMSG", IRC_MSG_PRIVMSG},
+#line 22 "irc_msgs.gperf"
       {"353", RPL_NAMREPLY},
+#line 15 "irc_msgs.gperf"
+      {"PING", IRC_MSG_PING},
+      {""}, {""}, {""},
+#line 25 "irc_msgs.gperf"
+      {"372", RPL_MOTD},
+#line 14 "irc_msgs.gperf"
+      {"PASS", IRC_MSG_PASS},
+      {""}, {""}, {""},
+#line 20 "irc_msgs.gperf"
+      {"003", RPL_CREATED},
 #line 11 "irc_msgs.gperf"
       {"NICK", IRC_MSG_NICK},
       {""}, {""}, {""},
+#line 19 "irc_msgs.gperf"
+      {"002", RPL_YOURHOST},
+      {""}, {""}, {""}, {""},
 #line 21 "irc_msgs.gperf"
-      {"372", RPL_MOTD}
+      {"004", RPL_MYINFO},
+      {""}, {""}, {""}, {""},
+#line 18 "irc_msgs.gperf"
+      {"001", RPL_WELCOME}
     };
 
   if (len <= MAX_WORD_LENGTH && len >= MIN_WORD_LENGTH)
@@ -141,5 +152,5 @@ in_word_set (register const char *str, register size_t len)
     }
   return 0;
 }
-#line 23 "irc_msgs.gperf"
+#line 27 "irc_msgs.gperf"
 

@@ -4,19 +4,7 @@
 #include <sys/types.h>
 #include <time.h>
 
-#define MAX_USERNAME_LEN 26
-#define MAX_MESSAGE_TEXT_LEN 512
-
 #define CHAT_CONN_BUFFER_SIZE 4096
-
-
-struct chat_user_msg
-{
-    char channel[MAX_USERNAME_LEN];
-    char username[MAX_USERNAME_LEN];
-    char text[MAX_MESSAGE_TEXT_LEN];
-    time_t ts;
-};
 
 enum chat_conn_retval {
     CHAT_CONN_OK = 0,

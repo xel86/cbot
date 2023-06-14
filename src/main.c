@@ -15,9 +15,8 @@ main(int argc, char **argv)
     chat_conn_init(argv[1]);
 
     char buf[CHAT_CONN_BUFFER_SIZE];
-    struct chat_user_msg msg;
+    struct irc_msg msg;
     enum chat_conn_retval ret;
-    enum irc_msg_type type;
 
     while (1)
     {
@@ -33,12 +32,17 @@ main(int argc, char **argv)
 
         while (buf_len != (cursor+1))
         {
-            type = parse_or_handle_irc_buffer(&msg, buf, &cursor);
-            if (type == IRC_MSG_PRIVMSG)
+            if (parse_irc_buffer_step(buf, &cursor, &msg) < 0)
             {
-                printf("(#%s) %s: %s\n", msg.channel, msg.username, msg.text);
+                fprintf(stderr, "Error parsing buffer: %s", buf);
+                break;
             }
-            else if (type == IRC_MSG_PING)
+
+            if (msg.command == IRC_MSG_PRIVMSG)
+            {
+                printf("(%s) %s: %s\n", msg.channel, msg.prefix.username, msg.params);
+            }
+            else if (msg.command == IRC_MSG_PING)
             {
                 ret = chat_conn_send_pong();
                 if (ret != CHAT_CONN_OK)
