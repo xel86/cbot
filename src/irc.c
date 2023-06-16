@@ -17,11 +17,16 @@ parse_irc_tags(char *buf, size_t cursor, struct irc_msg *msg)
     size_t token_len;
     size_t token_start;
 
+    // TODO: This is slow, what are alternative (faster) ways
+    // to determine if a tag's value has been set?
     /* This is important so that we can guarantee when checking
      * if a tag exists on a message that a non-present tag's
      * value will be a null term char.
      */
-    //memset(msg->tags, '\0', sizeof(msg->tags));
+    for (int i = 0; i < IRC_TAG_COUNT; i++)
+    {
+        msg->tags[i][0] ='\0';
+    }
 
     /* Skip '@' symbol at start of tags */
     cursor++;

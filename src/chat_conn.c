@@ -101,6 +101,13 @@ chat_conn_init(char *channel)
         return CHAT_CONN_CONNECTION_ERROR;
     }
 
+    // TODO: Probably want to make capability requests optional through cli arg/config
+    snprintf(cmd, sizeof(cmd), "CAP REQ :twitch.tv/commands twitch.tv/tags\r\n");
+    if (send(m_socket, cmd, strlen(cmd), 0) < 0) {
+        fprintf(stderr, "Failed to send JOIN command\n");
+        return CHAT_CONN_CONNECTION_ERROR;
+    }
+
     m_initialized = 1;
     return CHAT_CONN_OK;
 }
