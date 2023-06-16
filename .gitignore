@@ -53,6 +53,7 @@ dkms.conf
 
 # binary
 cbot
+benchmark
 
 compile_commands.json
 tags

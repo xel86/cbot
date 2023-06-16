@@ -2,6 +2,9 @@
 /* Command-line: gperf -t --output-file=irc_msg_command_table.h irc_msgs.gperf  */
 /* Computed positions: -k'2-3' */
 
+#ifndef IRC_MSG_COMMAND_TABLE_H
+#define IRC_MSG_COMMAND_TABLE_H
+
 #if !((' ' == 32) && ('!' == 33) && ('"' == 34) && ('#' == 35) \
       && ('%' == 37) && ('&' == 38) && ('\'' == 39) && ('(' == 40) \
       && (')' == 41) && ('*' == 42) && ('+' == 43) && (',' == 44) \
@@ -38,11 +41,11 @@ struct irc_msg_keyword {
     enum irc_msg_command value;
 };
 
-#define TOTAL_KEYWORDS 26
-#define MIN_WORD_LENGTH 3
-#define MAX_WORD_LENGTH 15
-#define MIN_HASH_VALUE 3
-#define MAX_HASH_VALUE 49
+#define CMD_TOTAL_KEYWORDS 26
+#define CMD_MIN_WORD_LENGTH 3
+#define CMD_MAX_WORD_LENGTH 15
+#define CMD_MIN_HASH_VALUE 3
+#define CMD_MAX_HASH_VALUE 49
 /* maximum key range = 47, duplicates = 0 */
 
 #ifdef __GNUC__
@@ -53,7 +56,7 @@ inline
 #endif
 #endif
 static unsigned int
-hash (register const char *str, register size_t len)
+hash_cmd (register const char *str, register size_t len)
 {
   static unsigned char asso_values[] =
     {
@@ -88,7 +91,7 @@ hash (register const char *str, register size_t len)
 }
 
 struct irc_msg_keyword *
-in_word_set (register const char *str, register size_t len)
+irc_msg_cmd_str_to_enum (register const char *str, register size_t len)
 {
   static struct irc_msg_keyword wordlist[] =
     {
@@ -156,11 +159,11 @@ in_word_set (register const char *str, register size_t len)
       {"PING", IRC_MSG_PING}
     };
 
-  if (len <= MAX_WORD_LENGTH && len >= MIN_WORD_LENGTH)
+  if (len <= CMD_MAX_WORD_LENGTH && len >= CMD_MIN_WORD_LENGTH)
     {
-      register unsigned int key = hash (str, len);
+      register unsigned int key = hash_cmd (str, len);
 
-      if (key <= MAX_HASH_VALUE)
+      if (key <= CMD_MAX_HASH_VALUE)
         {
           register const char *s = wordlist[key].name;
 
@@ -172,3 +175,4 @@ in_word_set (register const char *str, register size_t len)
 }
 #line 36 "irc_msgs.gperf"
 
+#endif

@@ -1,5 +1,6 @@
 #include "irc.h"
 #include "irc_msg_command_table.h"
+#include "irc_tag_table.h"
 #include "chat_conn.h"
 
 #include <stddef.h>
@@ -11,13 +12,58 @@
 static size_t 
 parse_irc_tags(char *buf, size_t cursor, struct irc_msg *msg)
 {
-    // Skip tags for now
-    for (; buf[cursor] != ' '; cursor++)
+    char tag_str[MAX_IRC_COMMAND_STR_LEN];
+    enum irc_tag_index tag;
+    size_t token_len;
+    size_t token_start;
+
+    /* This is important so that we can guarantee when checking
+     * if a tag exists on a message that a non-present tag's
+     * value will be a null term char.
+     */
+    //memset(msg->tags, '\0', sizeof(msg->tags));
+
+    /* Skip '@' symbol at start of tags */
+    cursor++;
+
+    while (buf[cursor] != ' ')
     {
-        if (!buf[cursor])
+        token_start = cursor;
+        for (; buf[cursor] != '='; cursor++);
+        token_len = cursor - token_start; 
+        strncpy(tag_str, &buf[token_start], token_len);
+        tag_str[token_len] = '\0';
+        cursor++;
+
+        /* Get hash */
+        const struct irc_tag_keyword *result = irc_tag_str_to_index(tag_str, token_len);
+        if (result == NULL)
         {
-            return 0;
+            for (; buf[cursor] != ';' && buf[cursor] != ' '; cursor++);
+
+            if(buf[cursor] == ' ')
+            {
+                break;
+            }
+
+            cursor++;
+            continue;
         }
+
+        tag = result->value;
+
+        token_start = cursor;
+        for (; buf[cursor] != ';' && buf[cursor] != ' '; cursor++);
+        token_len = cursor - token_start; 
+        strncpy(msg->tags[tag], &buf[token_start], token_len);
+        msg->tags[tag][token_len] = '\0';
+
+        if(buf[cursor] == ' ')
+        {
+            break;
+        }
+
+        cursor++;
     }
 
     return cursor;
@@ -96,7 +142,7 @@ parse_irc_command(char *buf, size_t cursor, struct irc_msg *msg)
     /* Use a perfect hash table generated from gperf to translate type str to enum.
      * Example: "PRIVMSG" -> IRC_MSG_PRIVMSG
      */
-    const struct irc_msg_keyword *result = in_word_set(cmd_str, token_len);
+    const struct irc_msg_keyword *result = irc_msg_cmd_str_to_enum(cmd_str, token_len);
     if (result == NULL)
     {
         return 0;
@@ -209,3 +255,31 @@ parse_irc_buffer_step(char *buf, size_t *cursor, struct irc_msg *msg)
     return 0;
 }
 
+char *
+irc_msg_try_get_tag(enum irc_tag_index tag, struct irc_msg *msg)
+{
+    if (msg->tags[tag][0] == '\0')
+    {
+        return NULL;
+    }
+    else
+    {
+        return msg->tags[tag];
+    }
+}
+
+void
+irc_msg_print_tags(struct irc_msg *msg)
+{
+    char *tag;
+
+    printf("msg tags: [\n");
+    for (int i = 0; i < IRC_TAG_COUNT; i++)
+    {
+        if ((tag = irc_msg_try_get_tag(i, msg)) != NULL)
+        {
+            printf("  %s\n", tag);
+        }
+    }
+    printf("]\n");
+}

@@ -8,7 +8,7 @@ OBJ := $(SRC:$(SRC_DIR)/%.c=$(OBJ_DIR)/%.o)
 
 CC := clang
 CPPFLAGS :=
-CFLAGS   := -g -Wall
+CFLAGS   := -g -Wall -O3
 LDFLAGS  := -Llib
 LDLIBS   := 
 
