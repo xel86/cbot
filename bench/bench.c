@@ -9,7 +9,7 @@
 #define MAX_LENGTH 8196
 
 int main() {
-    FILE *file = fopen("ircbench.txt", "r");
+    FILE *file = fopen("data.txt", "r");
     if (file == NULL) {
         printf("Failed to open the file.\n");
         return 1;
