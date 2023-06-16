@@ -31,7 +31,7 @@ parse_irc_tags(char *buf, size_t cursor, struct irc_msg *msg)
         token_start = cursor;
         for (; buf[cursor] != '='; cursor++);
         token_len = cursor - token_start; 
-        strncpy(tag_str, &buf[token_start], token_len);
+        memcpy(tag_str, &buf[token_start], token_len);
         tag_str[token_len] = '\0';
         cursor++;
 
@@ -55,7 +55,7 @@ parse_irc_tags(char *buf, size_t cursor, struct irc_msg *msg)
         token_start = cursor;
         for (; buf[cursor] != ';' && buf[cursor] != ' '; cursor++);
         token_len = cursor - token_start; 
-        strncpy(msg->tags[tag], &buf[token_start], token_len);
+        memcpy(msg->tags[tag], &buf[token_start], token_len);
         msg->tags[tag][token_len] = '\0';
 
         if(buf[cursor] == ' ')
@@ -97,19 +97,19 @@ parse_irc_prefix(char *buf, size_t cursor, struct irc_msg *msg)
         /* Nickname */
         token_start = start + 1;
         token_len = nick_end - token_start;
-        strncpy(msg->prefix.nickname, &buf[token_start], token_len);
+        memcpy(msg->prefix.nickname, &buf[token_start], token_len);
         msg->prefix.nickname[token_len] = '\0';
 
         /* Username */
         token_start = nick_end + 1;
         token_len = user_end - token_start;
-        strncpy(msg->prefix.username, &buf[token_start], token_len);
+        memcpy(msg->prefix.username, &buf[token_start], token_len);
         msg->prefix.username[token_len] = '\0';
 
         /* Host */
         token_start = user_end + 1;
         token_len = cursor - token_start;
-        strncpy(msg->prefix.host, &buf[token_start], token_len);
+        memcpy(msg->prefix.host, &buf[token_start], token_len);
         msg->prefix.host[token_len] = '\0';
     }
     else
@@ -119,7 +119,7 @@ parse_irc_prefix(char *buf, size_t cursor, struct irc_msg *msg)
         /* Host */
         token_start = start + 1;
         token_len = cursor - token_start;
-        strncpy(msg->prefix.host, &buf[token_start], token_len);
+        memcpy(msg->prefix.host, &buf[token_start], token_len);
         msg->prefix.host[token_len] = '\0';
     }
 
@@ -136,7 +136,7 @@ parse_irc_command(char *buf, size_t cursor, struct irc_msg *msg)
     token_start = cursor;
     for (; buf[cursor] != ' '; cursor++);
     token_len = cursor - token_start; 
-    strncpy(cmd_str, &buf[token_start], token_len);
+    memcpy(cmd_str, &buf[token_start], token_len);
     cmd_str[token_len] = '\0';
 
     /* Use a perfect hash table generated from gperf to translate type str to enum.
@@ -166,7 +166,7 @@ parse_irc_params(char *buf, size_t cursor, struct irc_msg *msg)
         token_start = cursor;
         for (; buf[cursor] != ' '; cursor++);
         token_len = cursor - token_start; 
-        strncpy(msg->channel, &buf[token_start], token_len);
+        memcpy(msg->channel, &buf[token_start], token_len);
         msg->channel[token_len] = '\0';
 
         /* Go past space ' '*/
@@ -179,7 +179,7 @@ parse_irc_params(char *buf, size_t cursor, struct irc_msg *msg)
         token_start = cursor;
         for (; buf[cursor] != '\r'; cursor++);
         token_len = cursor - token_start; 
-        strncpy(msg->params, &buf[token_start], token_len);
+        memcpy(msg->params, &buf[token_start], token_len);
         msg->params[token_len] = '\0';
     }
     else
@@ -188,7 +188,7 @@ parse_irc_params(char *buf, size_t cursor, struct irc_msg *msg)
         token_start = cursor;
         for (; buf[cursor] != '\r'; cursor++);
         token_len = cursor - token_start; 
-        strncpy(msg->params, &buf[token_start], token_len);
+        memcpy(msg->params, &buf[token_start], token_len);
         msg->params[token_len] = '\0';
     }
 
