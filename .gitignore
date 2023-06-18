@@ -55,5 +55,7 @@ dkms.conf
 cbot
 benchmark
 
+# misc
+data.txt
 compile_commands.json
 tags

@@ -31,6 +31,9 @@ chat_conn_init(char *channel);
 int
 chat_conn_get_next_buffer(char *buf, size_t *bytes_out);
 
+int
+chat_conn_send_msg(char *channel, char *text);
+
 /*
  * Sends a pong message back to the twitch irc server for keepalive messages
  */

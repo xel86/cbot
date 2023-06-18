@@ -1,4 +1,7 @@
-#include "chat_conn.h"
+#ifndef IRC_H
+#define IRC_H
+
+#include <stddef.h>
 
 #define MAX_IRC_USERNAME_LEN 32
 #define MAX_IRC_PARAMS_LEN 1024
@@ -68,12 +71,22 @@ enum irc_tag_index
  */
 #define IRC_TAG_COUNT 40
 
+/*
+ * https://ircv3.net/specs/extensions/message-tags.html#size-limit
+ * The actual max length of any one tag's value is 4094, but since we
+ * are statically allocating the irc_msg_tags array for performance reasons,
+ * I don't want to allocate that much preemptively.
+ * This is on top of the fact that it doesn't seem feasible, given the tags
+ * available, for a tag's value to exceed this length.
+ */
+#define IRC_TAG_MAX_VALUE_LEN 1024
+
 /* Used to store the value of each tag if present in a message.
  * tag names such as "user-id" will be translated into an irc_tag_index enum,
  * said enum will then be used as an index to the value for the tag 
  * in a irc_msg_tags array.
  */
-typedef char irc_msg_tags[64][1024];
+typedef char irc_msg_tags[IRC_TAG_COUNT][IRC_TAG_MAX_VALUE_LEN];
 
 struct irc_msg_prefix
 {
@@ -156,3 +169,5 @@ irc_msg_print_tags(struct irc_msg *msg);
  */
 int
 parse_irc_buffer_step(char *buf, size_t *cursor, struct irc_msg *msg);
+
+#endif

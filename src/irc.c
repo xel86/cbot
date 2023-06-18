@@ -60,6 +60,7 @@ parse_irc_tags(char *buf, size_t cursor, struct irc_msg *msg)
         token_start = cursor;
         for (; buf[cursor] != ';' && buf[cursor] != ' '; cursor++);
         token_len = cursor - token_start; 
+        token_len = token_len < IRC_TAG_MAX_VALUE_LEN ? token_len : IRC_TAG_MAX_VALUE_LEN;
         memcpy(msg->tags[tag], &buf[token_start], token_len);
         msg->tags[tag][token_len] = '\0';
 

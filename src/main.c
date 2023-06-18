@@ -1,5 +1,6 @@
 #include "chat_conn.h"
 #include "irc.h"
+#include "command_handler.h"
 
 #include <stdio.h>
 
@@ -40,6 +41,13 @@ main(int argc, char **argv)
 
             if (msg.command == IRC_MSG_PRIVMSG)
             {
+                if (msg.params[0] == '&')
+                {
+                    if (command_handler(&msg) < 0)
+                    {
+                        fprintf(stderr, "Failed to spawn command handler thread!\n");
+                    }
+                }
                 printf("(%s) %s: %s\n", msg.channel, msg.prefix.username, msg.params);
             }
             else if (msg.command == IRC_MSG_PING)

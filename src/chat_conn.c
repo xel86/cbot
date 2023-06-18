@@ -182,6 +182,20 @@ chat_conn_get_next_buffer(char *buf, size_t *data_len_out)
 }
 
 int
+chat_conn_send_msg(char *channel, char *text)
+{
+    // TODO: every other message append a invis char to bypass
+    //       same message twitch check. will this require mutex?
+    char msg[1024];
+    snprintf(msg, sizeof(msg), "PRIVMSG %s :%s\r\n", channel, text);
+    if (send(m_socket, msg, strlen(msg), 0) < 0) {
+        return CHAT_CONN_CONNECTION_ERROR;
+    }
+
+    return CHAT_CONN_OK;
+}
+
+int
 chat_conn_send_pong()
 {
     char *pong = "PONG :tmi.twitch.tv\r\n";
