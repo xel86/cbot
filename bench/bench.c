@@ -2,8 +2,8 @@
 #include <stdlib.h>
 #include <time.h>
 #include <string.h>
-#include "../src/irc.h"
-#include "../src/chat_conn.h"
+#include "irc.h"
+#include "chat_conn.h"
 
 #define MAX_LINES 1000
 #define MAX_LENGTH 8196

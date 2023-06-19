@@ -14,6 +14,7 @@ main(int argc, char **argv)
     }
 
     chat_conn_init(argv[1]);
+    command_handler_init();
 
     char buf[CHAT_CONN_BUFFER_SIZE];
     struct irc_msg msg;

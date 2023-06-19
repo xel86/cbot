@@ -3,6 +3,9 @@
 
 #include "irc.h"
 
+int
+command_handler_init();
+
 /* command_handler will always do a deep copy of msg
  * and take ownership of whatever data it has in it 
  * command handler is a non-blocking function and will
