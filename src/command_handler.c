@@ -15,15 +15,18 @@
 
 #define COMMAND_TABLE_INIT_SIZE 16
 
+/* cmdtable holds dynamic links to command main functions to be called
+ * when a chatter invokes a command by name.
+ * We need to lock these links because the command "refresh" can invalidate
+ * current dlsym/dlopen links for commands during runtime during replacement
+ */
 struct cmd_table cmdtable;
+pthread_rwlock_t cmdtable_lock;
+pthread_rwlockattr_t cmdtable_lockattr;
 
 static void * 
 command_handler_thread(void *tmsg)
 {
-    /* Copy the passed in msg so that the thread can take ownership of it
-     * Sidenote: Could the main thread (command_handler) change the value of vmsg
-     * before we copy it? (unlikely but possible?)
-     */
     struct irc_msg *msg = (struct irc_msg*)tmsg;
     char response[MAX_IRC_PARAMS_LEN];
     char cmd_name[64];
@@ -34,16 +37,41 @@ command_handler_thread(void *tmsg)
     memcpy(cmd_name, &msg->params[1], i-1);
     cmd_name[i] = '\0';
 
+    /* cmd_table holds the function pointers for each command's main function
+     * from the command's dynamically linked shared library,
+     * with the key being the name of the command.
+     * A read/write lock is necessary because of the special command "refresh"
+     * that re-link's all of the shared libraries for each command, potentially
+     * invalidating current function pointers to previously linked libraries.
+     */
+    pthread_rwlock_rdlock(&cmdtable_lock);
     struct command_link *cmd = cmd_table_get(&cmdtable, cmd_name);
     if (cmd != NULL)
     {
+        /* Special case for refresh command since it is not in a shared library */
+        if (cmd->dlhandle == NULL)
+        {
+            /* Drop the read lock and aquire a write lock
+             * since we will be writing to cmdtable and deleting
+             * references to linked shared library functions that
+             * other threads could attempt to use 
+             */
+            pthread_rwlock_unlock(&cmdtable_lock);
+            pthread_rwlock_wrlock(&cmdtable_lock);
+        }
+
         int ret = cmd->func(msg, response);
+        pthread_rwlock_unlock(&cmdtable_lock);
+
         if (ret < 0)
         {
             fprintf(stderr, "Command %s failed during execution\n", cmd_name);
         }
-
         chat_conn_send_msg(msg->channel, response);
+    }
+    else
+    {
+        pthread_rwlock_unlock(&cmdtable_lock);
     }
 
     free(msg);
@@ -191,6 +219,29 @@ int
 command_handler_init()
 {
     int ret;
+
+    /* Initialize our shared library command link's rwlock to prefer writers.
+     * The refresh command will be the only one to aquire a write lock
+     * so we want to ensure it doesn't starve.
+     */
+    ret = pthread_rwlockattr_init(&cmdtable_lockattr); 
+    if (ret != 0)
+    {
+        fprintf(stderr, "Failed to initalize command table rwlockattr\n");
+        return -1;
+    }
+    ret = pthread_rwlockattr_setkind_np(&cmdtable_lockattr, PTHREAD_RWLOCK_PREFER_WRITER_NONRECURSIVE_NP);
+    if (ret != 0)
+    {
+        fprintf(stderr, "Failed to setkind on rwlockattr\n");
+        return -1;
+    }
+    ret = pthread_rwlock_init(&cmdtable_lock, &cmdtable_lockattr);
+    if (ret != 0)
+    {
+        fprintf(stderr, "Failed to initalize command table rwlock\n");
+        return -1;
+    }
 
     /* Create hash table to store command name -> command function main ptr */
     ret = cmd_table_init(&cmdtable, COMMAND_TABLE_INIT_SIZE);

@@ -1,7 +1,7 @@
 CC := gcc
 CFLAGS := -fPIC -Wall -O3 -Iinclude
 LDFLAGS := -Lbin/obj
-LDLIBS := -lm
+LDLIBS := -lm -lpthread
 
 SRC_DIR := src
 OBJ_DIR := bin/obj

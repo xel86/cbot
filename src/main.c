@@ -7,18 +7,29 @@
 int
 main(int argc, char **argv)
 {
+    int ret;
+
     if (argc < 2)
     {
         fprintf(stdout, "Provide a channel name to join as an argument\n");
         return 0;
     }
 
-    chat_conn_init(argv[1]);
-    command_handler_init();
+    ret = chat_conn_init(argv[1]);
+    if (ret != CHAT_CONN_OK)
+    {
+        fprintf(stderr, "Failed to initalize chat connection\n");
+        return 0;
+    }
+    ret = command_handler_init();
+    if (ret != 0)
+    {
+        fprintf(stderr, "Failed to initalize command handler\n");
+        return 0;
+    }
 
     char buf[CHAT_CONN_BUFFER_SIZE];
     struct irc_msg msg;
-    enum chat_conn_retval ret;
 
     while (1)
     {
