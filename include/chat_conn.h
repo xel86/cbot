@@ -4,12 +4,13 @@
 #include <sys/types.h>
 #include <time.h>
 
-#define CHAT_CONN_BUFFER_SIZE 4096
+#define CHAT_CONN_BUFFER_SIZE 8192 
 
 enum chat_conn_retval {
     CHAT_CONN_OK = 0,
-    CHAT_CONN_AUTH_ERROR = 1,
-    CHAT_CONN_CONNECTION_ERROR = 2,
+    CHAT_CONN_NO_FULL_MSG = 1,
+    CHAT_CONN_AUTH_ERROR = 2,
+    CHAT_CONN_CONNECTION_ERROR = 3,
 };
 
 /*

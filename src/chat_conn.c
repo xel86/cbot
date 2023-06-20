@@ -165,8 +165,12 @@ chat_conn_get_next_buffer(char *buf, size_t *data_len_out)
 
         if (i == -1)
         {
-            /* No messages found in received bytes from twitch */
-            return CHAT_CONN_CONNECTION_ERROR;
+            /* No complete messages found in received bytes from twitch
+             * put the whole thing in leftover buffer
+             */
+            leftover_size = data_len;
+            memcpy(leftover_buffer, buf, leftover_size);
+            return CHAT_CONN_NO_FULL_MSG;
         }
     }
     else

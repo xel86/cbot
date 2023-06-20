@@ -3,8 +3,13 @@
 
 #include <stddef.h>
 
+/* Twitch allows UTF-8 unicode characters in messages and nicknames
+ * MAX_IRC_PARAMS accounts for both the channel name, and the message
+ * A PRIVMSG message can be at max 500 characters long on twitch,
+ * and if the message is only utf-8 characters it can be up to 2000 bytes
+*/
 #define MAX_IRC_USERNAME_LEN 32
-#define MAX_IRC_PARAMS_LEN 1024
+#define MAX_IRC_PARAMS_LEN 2048
 #define MAX_IRC_COMMAND_STR_LEN 32
 
 /*
@@ -79,7 +84,7 @@ enum irc_tag_index
  * This is on top of the fact that it doesn't seem feasible, given the tags
  * available, for a tag's value to exceed this length.
  */
-#define IRC_TAG_MAX_VALUE_LEN 1024
+#define IRC_TAG_MAX_VALUE_LEN 2048
 
 /* Used to store the value of each tag if present in a message.
  * tag names such as "user-id" will be translated into an irc_tag_index enum,
@@ -90,7 +95,7 @@ typedef char irc_msg_tags[IRC_TAG_COUNT][IRC_TAG_MAX_VALUE_LEN];
 
 struct irc_msg_prefix
 {
-    char nickname[MAX_IRC_USERNAME_LEN];
+    char nickname[MAX_IRC_USERNAME_LEN*4]; // nickname can be unicode
     char username[MAX_IRC_USERNAME_LEN];
     char host[64];
 };

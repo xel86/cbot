@@ -39,7 +39,11 @@ main(int argc, char **argv)
         ret = chat_conn_get_next_buffer(buf, &buf_len);
         if (ret != CHAT_CONN_OK)
         {
-            fprintf(stderr, "Error getting data from twitch irc chat connection socket\n");
+            if (ret == CHAT_CONN_CONNECTION_ERROR)
+            {
+                fprintf(stderr, "Error getting data from twitch irc chat connection socket\n");
+            }
+
             continue;
         }
 
